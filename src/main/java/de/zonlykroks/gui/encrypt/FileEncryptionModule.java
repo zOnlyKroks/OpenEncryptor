@@ -2,6 +2,7 @@ package de.zonlykroks.gui.encrypt;
 
 import de.zonlykroks.cypher.SupportedCypher;
 import de.zonlykroks.cypher.impl.AES256Cypher;
+import de.zonlykroks.cypher.impl.Blowfish;
 import de.zonlykroks.cypher.impl.DukeNukeEm;
 
 import javax.swing.*;
@@ -31,6 +32,7 @@ public class FileEncryptionModule extends JFrame {
 
         cypherDefaultListModel.add(0, new AES256Cypher());
         cypherDefaultListModel.add(1, new DukeNukeEm());
+        cypherDefaultListModel.add(2, new Blowfish());
 
         final JList<?> supportedCypherJList = new JList<>(cypherDefaultListModel);
         this.add(supportedCypherJList,c);
