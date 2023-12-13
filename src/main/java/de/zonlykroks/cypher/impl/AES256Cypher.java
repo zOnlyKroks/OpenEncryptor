@@ -19,6 +19,11 @@ public class AES256Cypher implements SupportedCypher {
     private static final String CIPHER_SPEC = "AES/CBC/PKCS5Padding";
     private static final String KEYGEN_SPEC = "PBKDF2WithHmacSHA1";
 
+    @Override
+    public boolean isSymmectricCypher() {
+        return false;
+    }
+
 
     @Override
     public void encrypt(File work, char[] hashedPassword) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, InvalidKeySpecException, IllegalBlockSizeException, BadPaddingException {

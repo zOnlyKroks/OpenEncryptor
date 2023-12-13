@@ -10,19 +10,18 @@ import java.io.File;
 public class FileSelectionModule extends JFrame{
 
     public File toEncrypt;
-    private final JFileChooser fileChooser;
 
     public FileSelectionModule() {
         super("Choose a file to encrypt!");
 
-        fileChooser = new JFileChooser();
+        JFileChooser fileChooser = new JFileChooser();
         fileChooser.setPreferredSize(new Dimension(500,500));
         fileChooser.setCurrentDirectory(new File(PathUtils.getExecutionPath()));
 
         int status = fileChooser.showOpenDialog(null);
 
         if (status == JFileChooser.APPROVE_OPTION) {
-            toEncrypt = this.fileChooser.getSelectedFile();
+            toEncrypt = fileChooser.getSelectedFile();
 
             this.dispose();
             this.setVisible(false);

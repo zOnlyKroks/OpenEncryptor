@@ -1,20 +1,24 @@
 package de.zonlykroks.gui.encrypt;
 
 import de.zonlykroks.cypher.SupportedCypher;
-import de.zonlykroks.cypher.impl.AES256Cypher;
-import de.zonlykroks.cypher.impl.Blowfish;
-import de.zonlykroks.cypher.impl.DukeNukeEm;
+import de.zonlykroks.cypher.impl.*;
+import de.zonlykroks.util.PathUtils;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
 
 public class FileEncryptionModule extends JFrame {
 
-    private final Button modeButton, finishButton;
+    private final Button modeButton;
+    @Nullable
+    private File asymmetricKey = null;
 
     private boolean isModeEncrypt = true;
 
@@ -33,29 +37,37 @@ public class FileEncryptionModule extends JFrame {
         cypherDefaultListModel.add(0, new AES256Cypher());
         cypherDefaultListModel.add(1, new DukeNukeEm());
         cypherDefaultListModel.add(2, new Blowfish());
+        cypherDefaultListModel.add(3, new RSACypher());
+        cypherDefaultListModel.add(4, new SHA256());
 
         final JList<?> supportedCypherJList = new JList<>(cypherDefaultListModel);
         this.add(supportedCypherJList,c);
 
         c.gridy = 1;//set the y location of the grid for the next component
 
+        JButton publicKeyButton = new JButton();
+        publicKeyButton.setText("Select Public Key (Optional, used by asymmetric algorithms)");
+        this.add(publicKeyButton,c);
+
+        c.gridy=3;
+
         JTextField selectedFileTextField = new JTextField();
         selectedFileTextField.setEditable(false);
         this.add(selectedFileTextField,c);
 
-        c.gridy = 2;
+        c.gridy = 4;
         modeButton = new Button();
         modeButton.setLabel("Mode: Encrypt!");
 
         this.add(modeButton,c);
 
-        c.gridy = 3;
+        c.gridy = 5;
         JPasswordField passwordTextField = new JPasswordField();
         passwordTextField.setEditable(true);
         this.add(passwordTextField,c);
 
-        c.gridy = 4;
-        finishButton = new Button();
+        c.gridy = 6;
+        Button finishButton = new Button();
         finishButton.setLabel("Finalize!");
         this.add(finishButton,c);
 
@@ -78,20 +90,48 @@ public class FileEncryptionModule extends JFrame {
                 return;
             }
 
+            if(cypher.isSymmectricCypher() && asymmetricKey == null) {
+                JOptionPane.showMessageDialog(this, "You have selected a symmetric key cypher, please choose a public key to encrypt / decrypt the file");
+                return;
+            }
+
             try {
-                if(isModeEncrypt) {
-                    cypher.encrypt(file, passwordTextField.getPassword());
-                }else {
-                    cypher.decrypt(file,passwordTextField.getPassword());
+                if(!cypher.isSymmectricCypher()) {
+                    //AES etc
+                    if(isModeEncrypt) {
+                        cypher.encrypt(file, passwordTextField.getPassword());
+                    }else {
+                        cypher.decrypt(file,passwordTextField.getPassword());
+                    }
+                }else if(cypher.isSymmectricCypher()) {
+                    //RSA
+                    if(isModeEncrypt) {
+                        cypher.encrypt(file, Files.readString(asymmetricKey.toPath()));
+                    }else {
+                        cypher.decrypt(file, Files.readString(asymmetricKey.toPath()));
+                    }
                 }
             }catch (Exception exp) {
                 JOptionPane.showMessageDialog(this, "Caught exception!: \n" + exp);
+                exp.printStackTrace();
             }finally {
                 //This is all handled properly (hopefully), but why not go the extra mile.
                 passwordTextField.setText(genRandom32String());
                 System.gc();
 
                 JOptionPane.showMessageDialog(this , "Finished without an exception");
+            }
+        });
+
+        publicKeyButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setPreferredSize(new Dimension(500,500));
+            fileChooser.setCurrentDirectory(new File(PathUtils.getExecutionPath()));
+
+            int status = fileChooser.showOpenDialog(this);
+
+            if (status == JFileChooser.APPROVE_OPTION) {
+                asymmetricKey = fileChooser.getSelectedFile();
             }
         });
 

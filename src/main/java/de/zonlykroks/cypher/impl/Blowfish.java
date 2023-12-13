@@ -24,6 +24,11 @@ public class Blowfish implements SupportedCypher {
     private static final String CIPHER_SPEC = "Blowfish/CBC/PKCS5Padding";
 
     private static final String KEYGEN_SPEC = "PBKDF2WithHmacSHA1";
+
+    @Override
+    public boolean isSymmectricCypher() {
+        return false;
+    }
     @Override
     public void encrypt(File work, char[] hashedPassword) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, InvalidKeySpecException, IllegalBlockSizeException, BadPaddingException {
         // Generate a secret key using PBKDF2
@@ -94,4 +99,8 @@ public class Blowfish implements SupportedCypher {
         }
     }
 
+    @Override
+    public String toString() {
+        return CIPHER_SPEC + ":" + KEYGEN_SPEC;
+    }
 }

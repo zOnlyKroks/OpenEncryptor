@@ -10,6 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DukeNukeEm implements SupportedCypher {
+
+    @Override
+    public boolean isSymmectricCypher() {
+        return false;
+    }
+
     @Override
     public void encrypt(File work, char[] hashedPassword) throws IOException {
 
