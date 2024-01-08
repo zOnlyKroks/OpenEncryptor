@@ -1,5 +1,6 @@
 package de.zonlykroks.cypher.impl;
 
+import de.zonlykroks.OpenEncryptor;
 import de.zonlykroks.cypher.SupportedCypher;
 
 import javax.crypto.BadPaddingException;
@@ -17,7 +18,7 @@ import java.security.spec.InvalidKeySpecException;
 
 public class SHA256 implements SupportedCypher {
     @Override
-    public boolean isSymmectricCypher() {
+    public boolean isSymmetricCypher() {
         return false;
     }
 
@@ -33,7 +34,10 @@ public class SHA256 implements SupportedCypher {
         String pathWithoutEnding = path.substring(0, lastIndex) + ".hash";
 
         File file = new File(pathWithoutEnding);
-        if(!file.exists()) file.createNewFile();
+        if(!file.exists()) {
+            boolean rs = file.createNewFile();
+            OpenEncryptor.LOGGER.info("File was created: " + rs );
+        }
 
         StringBuilder hexString = new StringBuilder();
         for (byte b : encodedHash) {

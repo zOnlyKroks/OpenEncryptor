@@ -12,7 +12,7 @@ import java.util.List;
 public class DukeNukeEm implements SupportedCypher {
 
     @Override
-    public boolean isSymmectricCypher() {
+    public boolean isSymmetricCypher() {
         return false;
     }
 

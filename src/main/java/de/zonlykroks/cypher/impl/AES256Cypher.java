@@ -8,7 +8,6 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
@@ -20,7 +19,7 @@ public class AES256Cypher implements SupportedCypher {
     private static final String KEYGEN_SPEC = "PBKDF2WithHmacSHA1";
 
     @Override
-    public boolean isSymmectricCypher() {
+    public boolean isSymmetricCypher() {
         return false;
     }
 

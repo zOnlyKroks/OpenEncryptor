@@ -1,5 +1,7 @@
 package de.zonlykroks.util;
 
+import de.zonlykroks.OpenEncryptor;
+
 public class PathUtils {
 
     public static String getExecutionPath() {
@@ -7,7 +9,7 @@ public class PathUtils {
             String executionPath = System.getProperty("user.dir");
             return executionPath.replace("\\", "/");
         }catch (Exception e){
-            e.printStackTrace();
+            OpenEncryptor.LOGGER.severe(e.getMessage());
         }
         return "C:/";
     }

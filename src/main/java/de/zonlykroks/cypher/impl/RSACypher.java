@@ -1,7 +1,6 @@
 package de.zonlykroks.cypher.impl;
 
 import de.zonlykroks.cypher.SupportedCypher;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -16,7 +15,7 @@ import java.util.Base64;
 
 public class RSACypher implements SupportedCypher {
     @Override
-    public boolean isSymmectricCypher() {
+    public boolean isSymmetricCypher() {
         return true;
     }
 

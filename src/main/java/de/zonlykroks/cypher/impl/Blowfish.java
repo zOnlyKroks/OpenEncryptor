@@ -8,7 +8,6 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -16,8 +15,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
-import java.util.Arrays;
-import java.util.Random;
 
 public class Blowfish implements SupportedCypher {
 
@@ -26,7 +23,7 @@ public class Blowfish implements SupportedCypher {
     private static final String KEYGEN_SPEC = "PBKDF2WithHmacSHA1";
 
     @Override
-    public boolean isSymmectricCypher() {
+    public boolean isSymmetricCypher() {
         return false;
     }
     @Override
@@ -82,7 +79,7 @@ public class Blowfish implements SupportedCypher {
         // Read the IV from the encrypted file
         try (InputStream in = new FileInputStream(work)) {
             byte[] ivBytes = new byte[cipher.getBlockSize()];
-            in.read(ivBytes);
+            in.read(ivBytes)
             IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 
             // Initialize the Cipher for decryption

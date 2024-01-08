@@ -1,5 +1,6 @@
 package de.zonlykroks.gui.file;
 
+import de.zonlykroks.OpenEncryptor;
 import de.zonlykroks.gui.encrypt.FileEncryptionModule;
 import de.zonlykroks.util.PathUtils;
 
@@ -23,8 +24,12 @@ public class FileSelectionModule extends JFrame{
         if (status == JFileChooser.APPROVE_OPTION) {
             toEncrypt = fileChooser.getSelectedFile();
 
+            OpenEncryptor.LOGGER.info("Successfully selected target file! Disposing of window!");
+
             this.dispose();
             this.setVisible(false);
+
+            OpenEncryptor.LOGGER.info("Disposed of window, creating FileEncryption window :D");
 
             FileEncryptionModule module = new FileEncryptionModule(toEncrypt);
             module.setVisible(true);

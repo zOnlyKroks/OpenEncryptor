@@ -1,5 +1,6 @@
 package de.zonlykroks.gui.encrypt;
 
+import de.zonlykroks.OpenEncryptor;
 import de.zonlykroks.cypher.SupportedCypher;
 import de.zonlykroks.cypher.impl.*;
 import de.zonlykroks.util.PathUtils;
@@ -8,10 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Random;
 
 public class FileEncryptionModule extends JFrame {
@@ -72,7 +71,6 @@ public class FileEncryptionModule extends JFrame {
         this.add(finishButton,c);
 
         modeButton.addActionListener(e -> {
-
             if(isModeEncrypt) {
                 modeButton.setLabel("Mode: Decrypt!");
                 isModeEncrypt = false;
@@ -90,20 +88,24 @@ public class FileEncryptionModule extends JFrame {
                 return;
             }
 
-            if(cypher.isSymmectricCypher() && asymmetricKey == null) {
-                JOptionPane.showMessageDialog(this, "You have selected a symmetric key cypher, please choose a public key to encrypt / decrypt the file");
+            if(cypher.isSymmetricCypher() && asymmetricKey == null) {
+                JOptionPane.showMessageDialog(this, "You have selected a symmetric key cypher, please choose a key to encrypt / decrypt the file");
+                OpenEncryptor.LOGGER.severe("Key not chosen for symmetric cypher, aborting further actions!");
                 return;
             }
 
             try {
-                if(!cypher.isSymmectricCypher()) {
+                if(!cypher.isSymmetricCypher()) {
                     //AES etc
                     if(isModeEncrypt) {
                         cypher.encrypt(file, passwordTextField.getPassword());
                     }else {
                         cypher.decrypt(file,passwordTextField.getPassword());
                     }
-                }else if(cypher.isSymmectricCypher()) {
+                }else if(cypher.isSymmetricCypher()) {
+
+                    if(asymmetricKey == null) return;
+
                     //RSA
                     if(isModeEncrypt) {
                         cypher.encrypt(file, Files.readString(asymmetricKey.toPath()));
@@ -112,12 +114,16 @@ public class FileEncryptionModule extends JFrame {
                     }
                 }
             }catch (Exception exp) {
-                JOptionPane.showMessageDialog(this, "Caught exception!: \n" + exp);
-                exp.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Caught exception!: \n" + exp.fillInStackTrace());
+                OpenEncryptor.LOGGER.severe(exp.getMessage());
             }finally {
                 //This is all handled properly (hopefully), but why not go the extra mile.
-                passwordTextField.setText(genRandom32String());
-                System.gc();
+                if(OpenEncryptor.CLEAN_PASSWORD_FIELD_UPON_COMPLETION) {
+                    OpenEncryptor.LOGGER.info("Begin scrambling!");
+                    passwordTextField.setText(genRandom32String());
+                    System.gc();
+                    OpenEncryptor.LOGGER.info("Finished scrambling!");
+                }
 
                 JOptionPane.showMessageDialog(this , "Finished without an exception");
             }
@@ -132,6 +138,7 @@ public class FileEncryptionModule extends JFrame {
 
             if (status == JFileChooser.APPROVE_OPTION) {
                 asymmetricKey = fileChooser.getSelectedFile();
+                OpenEncryptor.LOGGER.info("Symmetric key successfully loaded!");
             }
         });
 
@@ -142,7 +149,8 @@ public class FileEncryptionModule extends JFrame {
         selectedFileTextField.setText(file.getAbsolutePath());
         passwordTextField.setText(genRandom32String());
 
-        JOptionPane.showMessageDialog(this, "Your password will be scrambled, after you forgot to input a cypher, an exception got caught or upon successful encryption. Keep this in mind. Stay safe!");
+        JOptionPane.showMessageDialog(this, "Your password will be scrambled, after you forgot to input a cypher, an exception got caught or upon successful encryption. Keep this in mind. Stay safe! You can turn this off in the config!");
+        OpenEncryptor.LOGGER.info("Warning acknowledged!");
     }
 
     public static String genRandom32String() {

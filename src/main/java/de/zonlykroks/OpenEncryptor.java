@@ -12,10 +12,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public class OpenEncryptor {
 
     private static int RSA_KEY_SIZE;
+    public static boolean CLEAN_PASSWORD_FIELD_UPON_COMPLETION;
+
+    public static final Logger LOGGER = Logger.getLogger("OpenEncryptor");
 
     public static void main(String[] args) throws Exception {
         loadConfig();
@@ -23,7 +27,7 @@ public class OpenEncryptor {
         Security.addProvider(new BouncyCastleProvider());
         Security.addProvider(new BouncyCastlePQCProvider());
 
-        Arrays.stream(args).anyMatch(s -> {
+        Arrays.stream(args).forEach(s -> {
             try {
 
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -34,7 +38,7 @@ public class OpenEncryptor {
                     KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
                     kpg.initialize(RSA_KEY_SIZE);
 
-                    System.out.println("Generating RSA Keypair with size " + RSA_KEY_SIZE);
+                    LOGGER.info("Generating RSA Keypair with size " + RSA_KEY_SIZE);
 
                     KeyPair kp = kpg.generateKeyPair();
                     PrivateKey aPrivate = kp.getPrivate();
@@ -51,9 +55,8 @@ public class OpenEncryptor {
 
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.severe(e.getMessage());
             }
-            return false;
         });
 
         new FileSelectionModule();
@@ -68,5 +71,7 @@ public class OpenEncryptor {
         prop.load(stream);
 
         RSA_KEY_SIZE = Integer.parseInt((String) prop.getOrDefault("RSA_KEY_SIZE", 4096));
+        CLEAN_PASSWORD_FIELD_UPON_COMPLETION = Boolean.parseBoolean((String) prop.getOrDefault("CLEAN_PASSWORD_FIELD_UPON_COMPLETION", true));
+        LOGGER.info("Successfully loaded config values! Changes during runtime to config will be ignored until the application is relaunched!");
     }
 }
