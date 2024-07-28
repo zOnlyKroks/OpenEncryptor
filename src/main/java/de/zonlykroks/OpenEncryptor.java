@@ -1,77 +1,77 @@
 package de.zonlykroks;
 
 import de.zonlykroks.gui.file.FileSelectionModule;
+import de.zonlykroks.gui.rsa.RSAKeyGenWindow;
 import de.zonlykroks.util.PathUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 
+import javax.swing.*;
 import java.io.*;
-import java.security.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Base64;
+import java.security.Security;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 public class OpenEncryptor {
 
-    private static int RSA_KEY_SIZE;
     public static boolean CLEAN_PASSWORD_FIELD_UPON_COMPLETION;
-
     public static final Logger LOGGER = Logger.getLogger("OpenEncryptor");
 
-    public static void main(String[] args) throws Exception {
-        loadConfig();
+    public static void main(String[] args) {
+        try {
+            loadConfig();
+            Security.addProvider(new BouncyCastleProvider());
+            Security.addProvider(new BouncyCastlePQCProvider());
 
-        Security.addProvider(new BouncyCastleProvider());
-        Security.addProvider(new BouncyCastlePQCProvider());
+            int c = JOptionPane.showOptionDialog(null,
+                    "This app is for educational purposes only. The developer is not responsible for any misuse. By clicking \"OK,\" you agree to these terms. Click \"Cancel\" to exit. The app operates offline and does not send data to servers.",
+                    "Disclaimer",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.WARNING_MESSAGE,
+                    null,
+                    new String[]{
+                            "OK",
+                            "Cancel"
+                    },
+                    "OK");
 
-        Arrays.stream(args).forEach(s -> {
-            try {
+            if(c == 1) return;
 
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-                LocalDateTime now = LocalDateTime.now();
-                String key = dtf.format(now).replace(" ", "-").replace("/", "_").replace(":", "_");
+            String[] options = {"File Selection Module", "RSA Key Generator"};
+            int choice = JOptionPane.showOptionDialog(null,
+                    "Select a window to open",
+                    "Window Selection",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    options,
+                    options[0]);
 
-                if (s.equalsIgnoreCase("-genRSAKey")) {
-                    KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-                    kpg.initialize(RSA_KEY_SIZE);
-
-                    LOGGER.info("Generating RSA Keypair with size " + RSA_KEY_SIZE);
-
-                    KeyPair kp = kpg.generateKeyPair();
-                    PrivateKey aPrivate = kp.getPrivate();
-                    PublicKey aPublic = kp.getPublic();
-
-                    try (FileOutputStream outPrivate = new FileOutputStream(PathUtils.getExecutionPath() + "/" + key + ".priv")) {
-                        outPrivate.write(Base64.getEncoder().encode(aPrivate.getEncoded()));
-                    }
-
-                    try (FileOutputStream outPublic = new FileOutputStream(PathUtils.getExecutionPath() + "/" + key + ".pub")) {
-                        outPublic.write(Base64.getEncoder().encode(aPublic.getEncoded()));
-                    }
-
-
-                }
-            } catch (Exception e) {
-                LOGGER.severe(e.getMessage());
+            if (choice == 0) {
+                new FileSelectionModule();
+            } else if (choice == 1) {
+                new RSAKeyGenWindow();
             }
-        });
-
-        new FileSelectionModule();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void loadConfig() throws Exception {
+        File configDir = new File(PathUtils.getExecutionPath() + "/config/");
+
+        if(!configDir.exists()) configDir.mkdirs();
+
         File configFile = new File(PathUtils.getExecutionPath() + "/config/openencryptor.properties");
-        InputStream stream = new FileInputStream(configFile);
 
-        Properties prop = new Properties();
+        if(!configFile.exists()) configFile.createNewFile();
 
-        prop.load(stream);
+        try (InputStream stream = new FileInputStream(configFile)) {
+            Properties prop = new Properties();
+            prop.load(stream);
 
-        RSA_KEY_SIZE = Integer.parseInt((String) prop.getOrDefault("RSA_KEY_SIZE", 4096));
-        CLEAN_PASSWORD_FIELD_UPON_COMPLETION = Boolean.parseBoolean((String) prop.getOrDefault("CLEAN_PASSWORD_FIELD_UPON_COMPLETION", true));
-        LOGGER.info("Successfully loaded config values! Changes during runtime to config will be ignored until the application is relaunched!");
+            CLEAN_PASSWORD_FIELD_UPON_COMPLETION = Boolean.parseBoolean((String) prop.getOrDefault("CLEAN_PASSWORD_FIELD_UPON_COMPLETION", "true"));
+            LOGGER.info("Successfully loaded config values! Changes during runtime to config will be ignored until the application is relaunched!");
+        }
     }
 }

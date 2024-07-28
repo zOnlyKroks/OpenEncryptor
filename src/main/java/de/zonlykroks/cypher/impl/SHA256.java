@@ -23,7 +23,7 @@ public class SHA256 implements SupportedCypher {
     }
 
     @Override
-    public void encrypt(File work, char[] hashedPassword) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, InvalidKeySpecException, IllegalBlockSizeException, BadPaddingException {
+    public void encrypt(File work, char[] hashedPassword) throws IOException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, InvalidKeySpecException, IllegalBlockSizeException, BadPaddingException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         String fileAsString = String.join("", Files.readAllLines(work.toPath()));
 

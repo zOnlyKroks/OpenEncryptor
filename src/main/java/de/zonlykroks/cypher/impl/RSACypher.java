@@ -24,13 +24,13 @@ public class RSACypher implements SupportedCypher {
             NoSuchAlgorithmException, InvalidKeyException,
             InvalidKeySpecException, IllegalBlockSizeException, BadPaddingException {
         // Remove the header and footer lines from the key string
-        key = key.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "").trim();
+        key = key.replace("-----BEGIN KEY-----\n", "").replace("\n-----END KEY-----\n", "").trim();
 
         // Remove all whitespace characters from the key string
         key = key.replaceAll("\\s", "");
 
         // Decode the Base64-encoded key string
-        byte[] keyBytes = java.util.Base64.getDecoder().decode(key);
+        byte[] keyBytes = Base64.getDecoder().decode(key);
 
         // Generate the public key from the decoded bytes
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -52,7 +52,7 @@ public class RSACypher implements SupportedCypher {
             IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException {
 
         // Remove the header and footer lines from the key string
-        key = key.replaceAll("-----BEGIN .* PRIVATE KEY-----", "").replaceAll("-----END .* PRIVATE KEY-----", "").trim();
+        key = key.replaceAll("-----BEGIN KEY-----\n", "").replaceAll("\n-----END KEY-----\n", "").trim();
 
         // Remove all whitespace characters from the key string
         key = key.replaceAll("\\s", "");

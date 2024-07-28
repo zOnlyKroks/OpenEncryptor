@@ -79,7 +79,7 @@ public class Blowfish implements SupportedCypher {
         // Read the IV from the encrypted file
         try (InputStream in = new FileInputStream(work)) {
             byte[] ivBytes = new byte[cipher.getBlockSize()];
-            in.read(ivBytes)
+            in.read(ivBytes);
             IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 
             // Initialize the Cipher for decryption

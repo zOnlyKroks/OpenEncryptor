@@ -45,7 +45,7 @@ public class FileEncryptionModule extends JFrame {
         c.gridy = 1;//set the y location of the grid for the next component
 
         JButton publicKeyButton = new JButton();
-        publicKeyButton.setText("Select Public Key (Optional, used by asymmetric algorithms)");
+        publicKeyButton.setText("Select Key (Optional, used by RSA, public -> encrypt, private -> decrypt)");
         this.add(publicKeyButton,c);
 
         c.gridy=3;
@@ -129,7 +129,7 @@ public class FileEncryptionModule extends JFrame {
             }
         });
 
-        publicKeyButton.addActionListener(e -> {
+        publicKeyButton.addActionListener(_ -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setPreferredSize(new Dimension(500,500));
             fileChooser.setCurrentDirectory(new File(PathUtils.getExecutionPath()));
@@ -139,6 +139,8 @@ public class FileEncryptionModule extends JFrame {
             if (status == JFileChooser.APPROVE_OPTION) {
                 asymmetricKey = fileChooser.getSelectedFile();
                 OpenEncryptor.LOGGER.info("Symmetric key successfully loaded!");
+
+                publicKeyButton.setText("Selected Key: " + asymmetricKey.getAbsolutePath());
             }
         });
 
